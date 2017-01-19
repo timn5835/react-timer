@@ -1,15 +1,21 @@
+function StartBtn(props) {
+	return (
+		<button onClick={() => props.onClick()}>Start</button>
+	);
+}
+
 class Timer extends React.Component {
 	constructor() {
 		super();
 		this.state = {elapsed: 0};
 	}
 
-	componentDidMount() {
-		this.timer = setInterval(this.tick.bind(this), 50);
-	}
-
 	componentWillUnmount() {
 		clearInterval(this.timer);
+	}
+
+	startHandler() {
+		this.timer = setInterval(this.tick.bind(this), 50);
 	}
 
 	tick() {
@@ -20,7 +26,14 @@ class Timer extends React.Component {
 		let elapsed = Math.round(this.state.elapsed / 100),
 			seconds = (elapsed / 10).toFixed(1);
 
-		return( <strong>{seconds}</strong> );
+		return( 
+			<div>
+				<h1>Timer: {seconds}</h1>
+				<div className="btnContainer">
+					<StartBtn onClick={() => this.startHandler()}/>
+				</div>
+			</div> 
+		);
 	}	
 }
 
