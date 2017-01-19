@@ -1,13 +1,15 @@
-function StartBtn(props) {
+function Button(props) {
 	return (
-		<button onClick={() => props.onClick()}>Start</button>
+		<button onClick={() => props.onClick()}>{props.name}</button>
 	);
 }
 
 class Timer extends React.Component {
 	constructor() {
 		super();
-		this.state = {elapsed: 0};
+		this.state = {elapsed: 0,
+					  isStarted: false,
+					  isReset: false};
 	}
 
 	componentWillUnmount() {
@@ -15,11 +17,40 @@ class Timer extends React.Component {
 	}
 
 	startHandler() {
-		this.timer = setInterval(this.tick.bind(this), 50);
+		if(!this.state.isStarted) {
+			//have to find if continuing or reset
+			let start = 0;
+			if(!this.state.isReset) {
+				//then set start accordingly
+				start = Date.now() - this.state.elapsed;
+			}
+			else {
+				start = Date.now();
+			}
+			this.timer = setInterval(() => this.tick(start, true, false), 50);
+		}
 	}
 
-	tick() {
-		this.setState({elapsed: Date.now() - this.props.start});
+	pauseHandler() {
+		clearInterval(this.timer);
+		//setState using current progress as elapsed (start = 0)
+		this.setState({elapsed: this.state.elapsed,
+					   isStarted: false,
+					   isReset: false});
+	}
+
+	resetHandler() {
+		clearInterval(this.timer);
+		//setState using the start as next time startBtn is clicked
+		this.setState({elapsed: 0,
+					   isStarted: false,
+					   isReset: true});
+	}
+
+	tick(start, isStarted, isReset) {
+		this.setState({elapsed: Date.now() - start,
+					   isStarted: isStarted,
+					   isReset: isReset});
 	}
 
 	render() {
@@ -30,7 +61,9 @@ class Timer extends React.Component {
 			<div>
 				<h1>Timer: {seconds}</h1>
 				<div className="btnContainer">
-					<StartBtn onClick={() => this.startHandler()}/>
+					<Button name="Start" onClick={() => this.startHandler()}/>
+					<Button name="Pause" onClick={() => this.pauseHandler()}/>
+					<Button name="Reset" onClick={() => this.resetHandler()}/>
 				</div>
 			</div> 
 		);
@@ -38,6 +71,6 @@ class Timer extends React.Component {
 }
 
 ReactDOM.render(
-	<Timer start={Date.now()} />,
+	<Timer />,
 	document.getElementById('container')
 );
